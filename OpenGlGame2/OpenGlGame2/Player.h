@@ -15,9 +15,16 @@ public:
 
 	virtual void Draw(GLuint shader_program);
 
+	void incrementFoodCount(int i);
+	int getFoodCount();
+
 private:
 
 	void SetVertices();
+
+	GLFWwindow* m_window;
+
+	int m_foodCount;
 };
 
 #endif

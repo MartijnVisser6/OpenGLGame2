@@ -1,17 +1,20 @@
 #ifndef GAMEOBJECT_H
 #define GAMEOBJECT_H
 
-#include <glm\glm.hpp>
+#include <glm/glm.hpp>
+#include <glm/gtc/matrix_transform.hpp>
+#include <glm/gtc/type_ptr.hpp>
 #include <GL/glew.h>
 #include <GL/glfw3.h>
 #include <vector>
+#include "Globals.h"
 #include <GL/glew.h>
 #include <GL/glfw3.h>
 
 class GameObject
 {
 public:
-	GameObject(glm::vec2 position, GLFWwindow* window);
+	GameObject(glm::vec2 position, float width, float height);
 
 	~GameObject();
 	
@@ -23,9 +26,17 @@ public:
 
 	glm::vec2 Velocity();
 
+	float Width();
+
+	float Height();
+
+	bool Intersects(GameObject *object);
+
 protected:
 
 	void CreateVAO();
+
+	bool isWithinObject(glm::vec2 * point);
 
 	glm::vec2 m_position;
 
@@ -37,7 +48,7 @@ protected:
 
 	float color[4];
 
-	GLFWwindow* m_window;
+	float m_width, m_height;
 
 private:
 

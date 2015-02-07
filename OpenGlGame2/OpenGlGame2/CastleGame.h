@@ -5,6 +5,8 @@
 #include <GL/glew.h>
 #include <GL/glfw3.h>
 #include "Player.h"
+#include "Food.h"
+
 class CastleGame
 {
 public:
@@ -22,9 +24,14 @@ private:
 
 	void StartGameLoop(GLFWwindow* window);
 	
+	void CheckIfFoodIsBeingPickedUp();
+
 	GLuint shader_program;
 	
 	Player* p;
+
+	std::vector<Food*> food;
+
 };
 
 #endif

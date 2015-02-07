@@ -74,12 +74,14 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="CastleGame.cpp" />
+    <ClCompile Include="Food.cpp" />
     <ClCompile Include="GameObject.cpp" />
     <ClCompile Include="Main.cpp" />
     <ClCompile Include="Player.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="CastleGame.h" />
+    <ClInclude Include="Food.h" />
     <ClInclude Include="GameObject.h" />
     <ClInclude Include="Globals.h" />
     <ClInclude Include="Player.h" />

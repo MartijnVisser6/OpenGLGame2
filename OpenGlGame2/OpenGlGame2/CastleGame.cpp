@@ -1,16 +1,24 @@
 #include "CastleGame.h"
 #include "Globals.h"
-#include <iostream>
+#include <vector>
 #include <string>
+#include <iostream>
 
-
+/// Default constructor of the castle game
 CastleGame::CastleGame()
 {
+	// Make the game window
 	GLFWwindow* window = SetContext();
-	CompileShaders();
-	p = new Player(glm::vec2(0.0f, 0.0f),window);
-	
 
+	// Compile the shaders
+	CompileShaders();
+
+	// Initialize gameobjects
+	p = new Player(glm::vec2(0.0f, 0.0f),window);
+	for (unsigned i = 0; i < 100; ++i)
+		food.push_back(new Food(glm::vec2(0.3f, 0.1f)));
+
+	// Start the game loop
 	StartGameLoop(window);
 }
 
@@ -21,18 +29,43 @@ CastleGame::~CastleGame()
 
 void CastleGame::Update(float deltaTime)
 {
+	// Update the objects
 	p->Update(deltaTime);
+	for (unsigned i = 0; i < food.size(); ++i)
+		food[i]->Update(deltaTime);
+
+	// Check if the player intersects with any food  
+	CheckIfFoodIsBeingPickedUp();
 }
 
 void CastleGame::Draw(GLFWwindow* window)
 {
+	// Clear the background color
 	const GLfloat color[] = { 0.0f, 0.0f, 0.0f, 1.0f };
 	glClearBufferfv(GL_COLOR, 0, color);
 
+	// Use the standard shader program
 	glUseProgram(shader_program);
 
-	p->Draw(shader_program);
+	// Set projection matrix
+	glm::mat4 projection;
+	projection = glm::perspective(FOV, (float)SCREEN_WIDTH / (float)SCREEN_HEIGHT, 0.01f, 1000.0f);
+	GLuint projection_location = glGetUniformLocation(shader_program, "projection");
+    glUniformMatrix4fv(projection_location, 1, GL_FALSE, glm::value_ptr(projection));
 
+
+	// Set view matrix
+	glm::mat4 view;
+	view = glm::translate(view, glm::vec3(0.0f, 0.0f, -1.0f));
+	GLuint view_location = glGetUniformLocation(shader_program, "view");
+	glUniformMatrix4fv(view_location, 1, GL_FALSE, glm::value_ptr(view));
+
+	// Draw the objects
+	p->Draw(shader_program);
+	for (unsigned i = 0; i < food.size(); ++i)
+		food[i]->Draw(shader_program);
+
+	// Swap the buffers
 	glfwSwapBuffers(window);
 }
 
@@ -65,17 +98,19 @@ void CastleGame::CompileShaders()
 
 	static const GLchar * vertex_shader_source[] =
 	{
-		"#version 330 core									\n"
-		"                                                   \n"
-		"layout (location = 0) in vec3 position;			\n"
-		"uniform vec4 color;                                \n"
-		"uniform vec3 offset;								\n"			
-		"out vec4 vs_color;                                 \n"
-		"void main()									    \n"
-		"{													\n"
-		"	gl_Position = vec4(position + offset, 1.0f);	\n"
-		"   vs_color = color;                               \n"
-		"}													\n"
+		"#version 330 core													\n"
+		"																	\n"
+		"layout (location = 0) in vec3 position;							\n"
+		"uniform mat4 projection;											\n"
+		"uniform mat4 view;													\n"
+		"uniform mat4 model;												\n"
+		"uniform vec4 color;												\n"			
+		"out vec4 vs_color;													\n"
+		"void main()														\n"
+		"{																	\n"
+		"	gl_Position = projection * view * model * vec4(position,1.0f);	\n"
+		"   vs_color = color;												\n"
+		"}																	\n"
 	};
 
 	static const GLchar * fragment_shader_source[] =
@@ -140,7 +175,7 @@ void CastleGame::StartGameLoop(GLFWwindow* window)
 		float deltaTime = currentTime - time;
 		
 		// Check if we need to update and draw the scene again
-		if (deltaTime >= 1 / MAX_FPS)
+		//if (deltaTime >= 1 / MAX_FPS)
 		{			
 			time = currentTime;
 
@@ -154,6 +189,23 @@ void CastleGame::StartGameLoop(GLFWwindow* window)
 
 			// Draw the scene
 			Draw(window);
+		}
+	}
+}
+
+void CastleGame::CheckIfFoodIsBeingPickedUp()
+{
+	// For every piece of food
+	for (unsigned i = 0; i < food.size(); ++i)
+	{
+		// If the player intersects it
+		if (p->Intersects(food[i]))
+		{
+			// Erase the food from the world
+			food.erase(food.begin() + i);
+
+			// Increment the player's food counter
+			p->incrementFoodCount(1);
 		}
 	}
 }

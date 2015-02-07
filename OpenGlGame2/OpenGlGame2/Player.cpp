@@ -1,8 +1,9 @@
 #include "Player.h"
-#include "Globals.h"
 
-Player::Player(glm::vec2 position, GLFWwindow* window) : GameObject(position,window)
+Player::Player(glm::vec2 position, GLFWwindow* window) : GameObject(position, PLAYER_SIZE, PLAYER_SIZE)
 {
+	m_window = window;
+
 	//Set color of player
 	color[0] = initialPlayerColor[0];
 	color[1] = initialPlayerColor[1];
@@ -23,13 +24,13 @@ void Player::Update(float deltaTime)
 	
 	// Player Input
 	if (glfwGetKey(m_window,GLFW_KEY_A))
-		m_position += glm::vec2(-playerSpeed, 0.0f);
+		m_position += glm::vec2(-PLAYER_SPEED, 0.0f) * deltaTime;
 	if (glfwGetKey(m_window, GLFW_KEY_W))
-		m_position += glm::vec2(0.0f, playerSpeed);
+		m_position += glm::vec2(0.0f, PLAYER_SPEED) * deltaTime;
 	if (glfwGetKey(m_window, GLFW_KEY_S))
-		m_position += glm::vec2(0.0f, -playerSpeed);
+		m_position += glm::vec2(0.0f, -PLAYER_SPEED) * deltaTime;
 	if (glfwGetKey(m_window, GLFW_KEY_D))
-		m_position += glm::vec2(playerSpeed, 0.0f);
+		m_position += glm::vec2(PLAYER_SPEED, 0.0f) * deltaTime;
 }
 
 void Player::Draw(GLuint shader_program)
@@ -37,19 +38,26 @@ void Player::Draw(GLuint shader_program)
 	GameObject::Draw(shader_program);
 }
 
-void Player::SetVertices()
+void Player::incrementFoodCount(int i)
 {
-	float width, height;
-	width = 0.5f;
-	height = 0.5f;
-	m_vertices = {
-		-playerSize, -playerSize, 0.0f,
-		-playerSize, playerSize, 0.0f,
-		playerSize, -playerSize, 0.0f,
+	m_foodCount += i;
+}
 
-		-playerSize, playerSize, 0.0f,
-		playerSize, playerSize, 0.0f,
-		playerSize, -playerSize, 0.0f
+int Player::getFoodCount()
+{
+	return m_foodCount;
+}
+
+void Player::SetVertices()
+{	
+	m_vertices = {
+		-PLAYER_SIZE, -PLAYER_SIZE, 0.0f,
+		-PLAYER_SIZE, PLAYER_SIZE, 0.0f,
+		PLAYER_SIZE, -PLAYER_SIZE, 0.0f,
+
+		-PLAYER_SIZE, PLAYER_SIZE, 0.0f,
+		PLAYER_SIZE, PLAYER_SIZE, 0.0f,
+		PLAYER_SIZE, -PLAYER_SIZE, 0.0f
 	};
 
 	GameObject::CreateVAO();
